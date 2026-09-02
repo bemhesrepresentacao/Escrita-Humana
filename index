@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HumanizaTexto — Escrita mais natural</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #172033;
+    min-height: 100vh;
+}
+
+/* CABEÇALHO */
+
+header {
+    background: linear-gradient(135deg, #123b72, #1769aa);
+    color: white;
+    padding: 28px 20px;
+    text-align: center;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: #62d48b;
+}
+
+header p {
+    margin-top: 8px;
+    opacity: .9;
+}
+
+/* CONTAINER */
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+/* PAINEL */
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+}
+
+h2 {
+    margin-bottom: 8px;
+}
+
+.description {
+    color: #667085;
+    margin-bottom: 22px;
+}
+
+/* ÁREAS DE TEXTO */
+
+.editor {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 330px;
+    resize: vertical;
+    border: 1px solid #d8dee9;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    line-height: 1.6;
+    outline: none;
+    transition: .2s;
+}
+
+textarea:focus {
+    border-color: #1769aa;
+    box-shadow: 0 0 0 3px rgba(23,105,170,.12);
+}
+
+/* CONTADORES */
+
+.counter {
+    color: #667085;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+/* OPÇÕES */
+
+.options {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.option {
+    display: flex;
+    flex-direction: column;
+}
+
+select {
+    padding: 13px;
+    border: 1px solid #d8dee9;
+    border-radius: 10px;
+    background: white;
+    font-size: 15px;
+}
+
+/* BOTÕES */
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 14px 22px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.primary {
+    background: #1769aa;
+    color: white;
+}
+
+.secondary {
+    background: #edf2f7;
+    color: #172033;
+}
+
+.success {
+    background: #239b56;
+    color: white;
+}
+
+.danger {
+    background: #ffe8e8;
+    color: #c62828;
+}
+
+/* STATUS */
+
+.status {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #eef7ff;
+    color: #1769aa;
+    display: none;
+}
+
+/* COMO FUNCIONA */
+
+.info {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.info-card {
+    background: white;
+    padding: 22px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.05);
+}
+
+.info-card .icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.info-card h3 {
+    margin-bottom: 7px;
+}
+
+.info-card p {
+    color: #667085;
+    line-height: 1.5;
+}
+
+/* RODAPÉ */
+
+footer {
+    text-align: center;
+    color: #667085;
+    padding: 30px 20px;
+    font-size: 13px;
+}
+
+/* RESPONSIVO */
+
+@media(max-width: 800px) {
+
+    .editor {
+        grid-template-columns: 1fr;
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+    }
+
+    .info {
+        grid-template-columns: 1fr;
+    }
+
+    textarea {
+        min-height: 260px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        Humaniza<span>Texto</span>
+    </div>
+
+    <p>
+        Transforme textos rígidos em uma escrita mais natural e agradável.
+    </p>
+
+</header>
+
+<main class="container">
+
+    <section class="card">
+
+        <h2>Humanizar texto</h2>
+
+        <p class="description">
+            Cole seu texto abaixo, escolha o estilo e clique em
+            <strong>Humanizar texto</strong>.
+        </p>
+
+        <div class="editor">
+
+            <!-- TEXTO ORIGINAL -->
+
+            <div class="box">
+
+                <label for="textoOriginal">
+                    Texto original
+                </label>
+
+                <textarea
+                    id="textoOriginal"
+                    placeholder="Cole ou escreva seu texto aqui..."
+                    oninput="atualizarContador()"
+                ></textarea>
+
+                <div class="counter">
+                    <span id="contadorOriginal">0</span> palavras
+                    ·
+                    <span id="caracteresOriginal">0</span> caracteres
+                </div>
+
+            </div>
+
+
+            <!-- RESULTADO -->
+
+            <div class="box">
+
+                <label for="textoResultado">
+                    Texto humanizado
+                </label>
+
+                <textarea
+                    id="textoResultado"
+                    placeholder="O resultado aparecerá aqui..."
+                    readonly
+                ></textarea>
+
+                <div class="counter">
+                    <span id="contadorResultado">0</span> palavras
+                    ·
+                    <span id="caracteresResultado">0</span> caracteres
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- OPÇÕES -->
+
+        <div class="options">
+
+            <div class="option">
+
+                <label for="estilo">
+                    Estilo
+                </label>
+
+                <select id="estilo">
+
+                    <option value="natural">
+                        Natural
+                    </option>
+
+                    <option value="conversacional">
+                        Conversacional
+                    </option>
+
+                    <option value="profissional">
+                        Profissional
+                    </option>
+
+                    <option value="academico">
+                        Acadêmico
+                    </option>
+
+                    <option value="comercial">
+                        Comercial
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="option">
+
+                <label for="intensidade">
+                    Intensidade
+                </label>
+
+                <select id="intensidade">
+
+                    <option value="leve">
+                        Leve
+                    </option>
+
+                    <option value="media" selected>
+                        Média
+                    </option>
+
+                    <option value="alta">
+                        Alta
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="option">
+
+                <label for="tom">
+                    Tom da escrita
+                </label>
+
+                <select id="tom">
+
+                    <option value="claro">
+                        Claro e direto
+                    </option>
+
+                    <option value="amigavel">
+                        Amigável
+                    </option>
+
+                    <option value="formal">
+                        Formal
+                    </option>
+
+                    <option value="persuasivo">
+                        Persuasivo
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOTÕES -->
+
+        <div class="buttons">
+
+            <button
+                class="primary"
+                onclick="humanizarTexto()"
+            >
+                ✨ Humanizar texto
+            </button>
+
+            <button
+                class="success"
+                onclick="copiarResultado()"
+            >
+                📋 Copiar resultado
+            </button>
+
+            <button
+                class="secondary"
+                onclick="usarResultado()"
+            >
+                ↔ Usar resultado
+            </button>
+
+            <button
+                class="danger"
+                onclick="limparTudo()"
+            >
+                🗑 Limpar
+            </button>
+
+        </div>
+
+
+        <div
+            id="status"
+            class="status"
+        ></div>
+
+    </section>
+
+
+    <!-- COMO FUNCIONA -->
+
+    <section class="info">
+
+        <div class="info-card">
+
+            <div class="icon">✍️</div>
+
+            <h3>Escrita natural</h3>
+
+            <p>
+                Ajusta construções muito rígidas e melhora a fluidez
+                do texto.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="icon">🎯</div>
+
+            <h3>Vários estilos</h3>
+
+            <p>
+                Escolha entre uma comunicação profissional,
+                acadêmica, comercial ou conversacional.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="icon">⚡</div>
+
+            <h3>Rápido e simples</h3>
+
+            <p>
+                Funciona diretamente no navegador, sem necessidade
+                de instalação.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    © 2026 HumanizaTexto · Ferramenta de escrita
+
+</footer>
+
+
+<script>
+
+/* =====================================================
+   CONTADORES
+===================================================== */
+
+function contarPalavras(texto) {
+
+    texto = texto.trim();
+
+    if (!texto) {
+        return 0;
+    }
+
+    return texto.split(/\s+/).length;
+}
+
+
+function atualizarContador() {
+
+    const texto =
+        document.getElementById("textoOriginal").value;
+
+    document.getElementById("contadorOriginal")
+        .textContent = contarPalavras(texto);
+
+    document.getElementById("caracteresOriginal")
+        .textContent = texto.length;
+}
+
+
+/* =====================================================
+   HUMANIZAÇÃO
+===================================================== */
+
+function humanizarTexto() {
+
+    const entrada =
+        document.getElementById("textoOriginal").value.trim();
+
+    if (!entrada) {
+
+        mostrarStatus(
+            "Digite ou cole um texto primeiro.",
+            true
+        );
+
+        return;
+    }
+
+
+    const estilo =
+        document.getElementById("estilo").value;
+
+    const intensidade =
+        document.getElementById("intensidade").value;
+
+    const tom =
+        document.getElementById("tom").value;
+
+
+    let texto = entrada;
+
+
+    /*
+       Substituições para deixar construções
+       muito artificiais mais naturais.
+    */
+
+    const substituicoes = [
+
+        [/é importante ressaltar que/gi, "vale destacar que"],
+
+        [/é de suma importância/gi, "é muito importante"],
+
+        [/dessa forma,/gi, "assim,"],
+
+        [/nesse sentido,/gi, "por isso,"],
+
+        [/além disso,/gi, "também"],
+
+        [/por conseguinte,/gi, "por isso,"],
+
+        [/no que diz respeito a/gi, "sobre"],
+
+        [/com o objetivo de/gi, "para"],
+
+        [/a fim de/gi, "para"],
+
+        [/devido ao fato de que/gi, "porque"],
+
+        [/em virtude de/gi, "por causa de"],
+
+        [/tendo em vista que/gi, "como"],
+
+        [/faz-se necessário/gi, "é necessário"],
+
+        [/podemos observar que/gi, "podemos perceber que"],
+
+        [/é possível afirmar que/gi, "podemos dizer que"],
+
+        [/atualmente,/gi, "hoje,"],
+
+        [/portanto,/gi, "por isso,"],
+
+        [/entretanto,/gi, "porém,"],
+
+        [/ademais,/gi, "além disso,"]
+
+    ];
+
+
+    if (
+        intensidade === "media" ||
+        intensidade === "alta"
+    ) {
+
+        substituicoes.forEach(function(item) {
+
+            texto = texto.replace(
+                item[0],
+                item[1]
+            );
+
+        });
+
+    }
+
+
+    /*
+       Ajustes específicos por estilo
+    */
+
+    if (estilo === "conversacional") {
+
+        texto = texto
+            .replace(/\bTodavia\b/gi, "Mas")
+            .replace(/\bDestarte\b/gi, "Por isso")
+            .replace(/\bOutrossim\b/gi, "Além disso");
+
+    }
+
+
+    if (estilo === "profissional") {
+
+        texto = texto
+            .replace(/\bmuito\b/gi, "bastante")
+            .replace(/\bcoisa\b/gi, "questão");
+
+    }
+
+
+    if (estilo === "comercial") {
+
+        texto = texto
+            .replace(
+                /\bproduto\b/gi,
+                "solução"
+            );
+
+    }
+
+
+    /*
+       Tom amigável
+    */
+
+    if (tom === "amigavel") {
+
+        texto = texto
+            .replace(
+                /^Olá,/i,
+                "Olá! Tudo bem?"
+            );
+
+    }
+
+
+    /*
+       Pequenos ajustes de pontuação
+    */
+
+    texto = texto
+        .replace(/\s+/g, " ")
+        .replace(/\s+,/g, ",")
+        .replace(/\s+\./g, ".")
+        .replace(/,{2,}/g, ",")
+        .trim();
+
+
+    /*
+       Capitalização
+    */
+
+    texto = texto.charAt(0).toUpperCase()
+        + texto.slice(1);
+
+
+    document.getElementById(
+        "textoResultado"
+    ).value = texto;
+
+
+    atualizarContadorResultado();
+
+
+    mostrarStatus(
+        "Texto humanizado com sucesso!"
+    );
+}
+
+
+/* =====================================================
+   CONTADOR DO RESULTADO
+===================================================== */
+
+function atualizarContadorResultado() {
+
+    const texto =
+        document.getElementById(
+            "textoResultado"
+        ).value;
+
+
+    document.getElementById(
+        "contadorResultado"
+    ).textContent =
+        contarPalavras(texto);
+
+
+    document.getElementById(
+        "caracteresResultado"
+    ).textContent =
+        texto.length;
+}
+
+
+/* =====================================================
+   COPIAR
+===================================================== */
+
+async function copiarResultado() {
+
+    const resultado =
+        document.getElementById(
+            "textoResultado"
+        ).value;
+
+
+    if (!resultado) {
+
+        mostrarStatus(
+            "Não há nenhum resultado para copiar.",
+            true
+        );
+
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            resultado
+        );
+
+        mostrarStatus(
+            "Texto copiado para a área de transferência!"
+        );
+
+    } catch (erro) {
+
+        mostrarStatus(
+            "Não foi possível copiar automaticamente.",
+            true
+        );
+
+    }
+}
+
+
+/* =====================================================
+   USAR RESULTADO
+===================================================== */
+
+function usarResultado() {
+
+    const resultado =
+        document.getElementById(
+            "textoResultado"
+        ).value;
+
+
+    if (!resultado) {
+
+        mostrarStatus(
+            "Não existe resultado para utilizar.",
+            true
+        );
+
+        return;
+    }
+
+
+    document.getElementById(
+        "textoOriginal"
+    ).value = resultado;
+
+
+    atualizarContador();
+
+
+    mostrarStatus(
+        "Resultado colocado no campo original."
+    );
+}
+
+
+/* =====================================================
+   LIMPAR
+===================================================== */
+
+function limparTudo() {
+
+    document.getElementById(
+        "textoOriginal"
+    ).value = "";
+
+
+    document.getElementById(
+        "textoResultado"
+    ).value = "";
+
+
+    atualizarContador();
+
+    atualizarContadorResultado();
+
+
+    document.getElementById(
+        "status"
+    ).style.display = "none";
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+function mostrarStatus(
+    mensagem,
+    erro = false
+) {
+
+    const status =
+        document.getElementById("status");
+
+
+    status.textContent = mensagem;
+
+    status.style.display = "block";
+
+
+    if (erro) {
+
+        status.style.background =
+            "#ffe8e8";
+
+        status.style.color =
+            "#c62828";
+
+    } else {
+
+        status.style.background =
+            "#eef7ff";
+
+        status.style.color =
+            "#1769aa";
+
+    }
+
+
+    setTimeout(function() {
+
+        status.style.display = "none";
+
+    }, 3500);
+}
+
+</script>
+
+</body>
+</html>
