@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escrita à Mão Livre</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Shadows+Into+Light&family=Kalam:wght@300;400;700&family=Indie+Flower&display=swap');
+
+  :root {
+    --primary:#3157d5;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --text:#202638;
+    --muted:#70798c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    background:linear-gradient(135deg,#eef2ff,#f8f9fc);
+    color:var(--text);
+    font-family:Arial,sans-serif;
+  }
+  .container { max-width:1100px; margin:auto; padding:30px 18px 50px; }
+  header { text-align:center; margin-bottom:28px; }
+  header h1 { margin:0 0 8px; font-size:clamp(30px,5vw,48px); }
+  header p { margin:0; color:var(--muted); font-size:17px; }
+  .grid { display:grid; grid-template-columns:340px 1fr; gap:20px; }
+  .card {
+    background:var(--card); border-radius:18px; padding:22px;
+    box-shadow:0 12px 35px rgba(35,48,90,.10);
+  }
+  label { display:block; font-weight:700; margin:0 0 8px; }
+  textarea, select, input[type=range] {
+    width:100%;
+  }
+  textarea {
+    min-height:170px; resize:vertical; border:1px solid #d9deea;
+    border-radius:12px; padding:14px; font-size:16px; outline:none;
+  }
+  textarea:focus, select:focus { border-color:var(--primary); }
+  select {
+    padding:12px; border:1px solid #d9deea; border-radius:10px;
+    background:white; font-size:15px;
+  }
+  .field { margin-bottom:20px; }
+  .range-row { display:flex; align-items:center; gap:12px; }
+  .range-row span { min-width:45px; text-align:right; font-weight:700; }
+  .buttons { display:flex; flex-wrap:wrap; gap:10px; }
+  button {
+    border:0; border-radius:10px; padding:12px 16px; cursor:pointer;
+    font-weight:700; font-size:14px;
+  }
+  .primary { background:var(--primary); color:white; }
+  .secondary { background:#edf0f7; color:#283149; }
+  .paper-wrap { overflow:auto; }
+  canvas {
+    display:block; width:100%; height:auto; background:white;
+    border-radius:10px; box-shadow:inset 0 0 0 1px #e5e7ed;
+  }
+  .hint { color:var(--muted); font-size:13px; margin-top:10px; }
+  .font-preview { font-size:25px; margin-top:8px; }
+  @media(max-width:800px) { .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>✍️ Escrita à Mão Livre</h1>
+    <p>Digite seu texto, escolha um estilo de letra manuscrita e baixe o resultado como imagem.</p>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <div class="field">
+        <label for="text">Seu texto</label>
+        <textarea id="text">Escreva aqui seu texto...</textarea>
+      </div>
+
+      <div class="field">
+        <label for="font">Estilo da escrita</label>
+        <select id="font">
+          <option value="Caveat">Caveat — manuscrita elegante</option>
+          <option value="Patrick Hand">Patrick Hand — natural</option>
+          <option value="Shadows Into Light">Shadows Into Light — leve</option>
+          <option value="Kalam">Kalam — escrita escolar</option>
+          <option value="Indie Flower">Indie Flower — descontraída</option>
+        </select>
+        <div id="fontPreview" class="font-preview">Exemplo de escrita à mão</div>
+      </div>
+
+      <div class="field">
+        <label for="size">Tamanho da letra</label>
+        <div class="range-row">
+          <input id="size" type="range" min="24" max="100" value="48">
+          <span id="sizeValue">48px</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="line">Espaçamento entre linhas</label>
+        <div class="range-row">
+          <input id="line" type="range" min="1.0" max="2.2" step="0.1" value="1.35">
+          <span id="lineValue">1,35</span>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="primary" id="download">⬇ Baixar PNG</button>
+        <button class="secondary" id="clear">Limpar</button>
+        <button class="secondary" id="example">Exemplo</button>
+      </div>
+
+      <p class="hint">A imagem é gerada diretamente no navegador. O site não envia o texto para um servidor.</p>
+    </section>
+
+    <section class="card paper-wrap">
+      <canvas id="canvas" width="1200" height="700"></canvas>
+      <p class="hint">Pré-visualização. A imagem baixada terá resolução maior para facilitar impressão e compartilhamento.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const text = document.getElementById('text');
+const font = document.getElementById('font');
+const size = document.getElementById('size');
+const line = document.getElementById('line');
+const sizeValue = document.getElementById('sizeValue');
+const lineValue = document.getElementById('lineValue');
+const preview = document.getElementById('fontPreview');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function updatePreviewFont() {
+  preview.style.fontFamily = '"' + font.value + '", cursive';
+}
+function wrapLines(ctx, str, maxWidth) {
+  const paragraphs = str.split('\\n');
+  const lines = [];
+  paragraphs.forEach((p, idx) => {
+    if (!p) { lines.push(''); return; }
+    const words = p.split(/\\s+/);
+    let current = '';
+    words.forEach(word => {
+      const test = current ? current + ' ' + word : word;
+      if (ctx.measureText(test).width > maxWidth && current) {
+        lines.push(current);
+        current = word;
+      } else current = test;
+    });
+    lines.push(current);
+    if (idx < paragraphs.length - 1) lines.push('');
+  });
+  return lines;
+}
+
+function draw() {
+  const scale = 2;
+  const W = 1200, H = 700;
+  canvas.width = W * scale; canvas.height = H * scale;
+  ctx.setTransform(scale,0,0,scale,0,0);
+
+  // papel
+  ctx.fillStyle = '#fffdf8';
+  ctx.fillRect(0,0,W,H);
+
+  // linhas de caderno suaves
+  ctx.strokeStyle = '#e8edf5';
+  ctx.lineWidth = 1;
+  for (let y=85; y<H; y+=62) {
+    ctx.beginPath(); ctx.moveTo(45,y); ctx.lineTo(W-45,y); ctx.stroke();
+  }
+
+  const fontSize = Number(size.value);
+  const lineHeight = fontSize * Number(line.value);
+  ctx.font = `${fontSize}px "${font.value}", cursive`;
+  ctx.fillStyle = '#20252f';
+  ctx.textBaseline = 'top';
+
+  const lines = wrapLines(ctx, text.value || '', W-110);
+  let y = 35;
+  lines.forEach(l => {
+    if (y + lineHeight <= H-20) ctx.fillText(l, 55, y);
+    y += lineHeight;
+  });
+
+  updatePreviewFont();
+}
+function refresh() {
+  sizeValue.textContent = size.value + 'px';
+  lineValue.textContent = Number(line.value).toFixed(2).replace('.',',');
+  draw();
+}
+[text,font,size,line].forEach(el => el.addEventListener('input', refresh));
+font.addEventListener('change', refresh);
+
+document.getElementById('clear').onclick = () => {
+  text.value = '';
+  draw();
+};
+document.getElementById('example').onclick = () => {
+  text.value = 'Que a paz, a esperança e a alegria acompanhem você todos os dias.';
+  draw();
+};
+document.getElementById('download').onclick = () => {
+  const link = document.createElement('a');
+  link.download = 'escrita-a-mao-livre.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+};
+
+document.fonts.ready.then(draw);
+refresh();
+</script>
+</body>
+</html>
